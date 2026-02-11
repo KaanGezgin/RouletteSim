@@ -59,15 +59,8 @@ Bahis türleri için `if-else` karmaşası yerine soyutlama kullanılmıştır.
 
 ## 🚀 Kurulum
 
-1.  Repo'yu klonlayın: `git clone [REPO_LINKINIZ]`
+1.  Repo'yu klonlayın: `git clone https://github.com/KaanGezgin/RouletteSim.git`
 2.  Unity Hub üzerinden projeyi açın (Unity 6 versiyonu önerilir).
 3.  `Scenes/RouletteGame` sahnesini açın ve Play butonuna basın.
-
----
-
-## 🐛 Bilinen Sorunlar ve Gelecek Planları
-
-* **Fizik:** Topun çark üzerindeki hareketi şu an animasyon bazlıdır. İleride Unity Physics kullanılarak daha kaotik sekmeler eklenebilir.
-* **UI:** Bahis geçmişi şu an sadece son 10 turu gösteriyor, kaydırılabilir bir liste ile genişletilebilir.
 
 ---
