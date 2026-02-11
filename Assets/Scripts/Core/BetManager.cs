@@ -21,7 +21,7 @@ namespace Core
         private int _currentBalance;
         private int _totalBetOnTable;
         private List<BetBase> _activeBets;
-
+        public int TotalBetOnTable => _totalBetOnTable;
         private void Awake()
         {
             if (Instance != null && Instance != this)
