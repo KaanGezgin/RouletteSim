@@ -60,7 +60,10 @@ namespace Core
                     break;
 
                 case GameState.Payout:
-                    // Bet calculation
+                    if (BetManager.Instance != null)
+                    {
+                        BetManager.Instance.ResolvePayouts();
+                    }
                     Invoke(nameof(ResetRound), 3.0f);
                     break;
             }

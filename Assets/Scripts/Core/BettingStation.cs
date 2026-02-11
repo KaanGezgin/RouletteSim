@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 namespace Core
 {
@@ -38,7 +39,7 @@ namespace Core
 
         private void Update()
         {
-            if (_isPlayerInZone && Input.GetKeyDown(KeyCode.E))
+            if (_isPlayerInZone && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
             {
                 ToggleBetWindow();
             }

@@ -73,12 +73,12 @@ public class BetWindowUI : MonoBehaviour
                 break;
 
             case 1: // Color
-                NumberColor color = (colorDropdown.value == 0) ? NumberColor.Red : NumberColor.Black; // 0=Red
+                NumberColor color = (colorDropdown.value == 0) ? NumberColor.Red : NumberColor.Black;
                 newBet = new ColorBet(amount, color);
                 break;
 
             case 2: // Parity
-                BetParity parity = (parityDropdown.value == 0) ? BetParity.Odd : BetParity.Even; // 0=Odd
+                BetParity parity = (parityDropdown.value == 0) ? BetParity.Odd : BetParity.Even;
                 newBet = new ParityBet(amount, parity);
                 break;
         }
