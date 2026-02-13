@@ -1,18 +1,18 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Core; // GameManager'a eriþim için
+using Core;
 using static Util.GeneralItilElements;
 
 public class RouletteWheelController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform wheelTransform; // Dönecek olan 3D çark modeli
-    [SerializeField] private AnimationCurve spinCurve;  // Hýzlanma/Yavaþlama eðrisi
+    [SerializeField] private Transform wheelTransform; 
+    [SerializeField] private AnimationCurve spinCurve; 
 
     [Header("Settings")]
-    [SerializeField] private float spinDuration = 5.0f; // Toplam dönüþ süresi 
-    [SerializeField] private int fullRotations = 6;    // Durmadan önce atacaðý tam tur sayýsý
+    [SerializeField] private float spinDuration = 5.0f;
+    [SerializeField] private int fullRotations = 6; 
 
     private void Start()
     {

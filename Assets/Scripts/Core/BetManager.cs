@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using static Core.Betting.BetBase;
 using static Core.Betting;
 using static Util.GeneralItilElements;
 
@@ -14,14 +15,17 @@ namespace Core
         [SerializeField] private int startingBalance = 1000;
 
         // UI Update Events
-        public event Action<int> OnBalanceChanged; // Current wallet
-        public event Action<int> OnCurrentBetChanged; // On table bets
-        public event Action<int> OnWinAmountCalculated; // final calculated amount
+        public event Action<int> OnBalanceChanged;
+        public event Action<int> OnCurrentBetChanged;
+        public event Action<int> OnWinAmountCalculated;
 
         private int _currentBalance;
         private int _totalBetOnTable;
+        private int _lastWinningNumber = -1; // Variable to hold the winning number
         private List<BetBase> _activeBets;
+
         public int TotalBetOnTable => _totalBetOnTable;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -32,15 +36,18 @@ namespace Core
             Instance = this;
 
             _activeBets = new List<BetBase>();
-            _currentBalance = startingBalance;
+            _currentBalance = PlayerPrefs.GetInt("PlayerBalance", startingBalance); // Load saved balance, otherwise use starting balance
         }
 
         private void Start()
         {
-            GameManager.Instance.OnSpinResultDetermined += HandleSpinResult;
-            GameManager.Instance.OnStateChanged += HandleStateChange;
+            // Event subscriptions
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnSpinResultDetermined += HandleSpinResult;
+            }
 
-            UpdateUI(); // UI setup
+            UpdateUI();
         }
 
         private void OnDestroy()
@@ -48,17 +55,16 @@ namespace Core
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnSpinResultDetermined -= HandleSpinResult;
-                GameManager.Instance.OnStateChanged -= HandleStateChange;
             }
         }
 
-        // --- Public API (For UI) ---
+        // --- Public API ---
 
-        // Bet method
         public bool PlaceBet(BetBase newBet)
         {
             if (GameManager.Instance.CurrentState != GameState.Betting)
             {
+                Debug.LogWarning("[BetManager] Betting is closed!");
                 return false;
             }
 
@@ -70,17 +76,16 @@ namespace Core
                 _activeBets.Add(newBet);
 
                 UpdateUI();
-                Debug.Log($"Bet Made: {newBet.Type}, Amount: {newBet.Amount}");
+                Debug.Log($"[BetManager] Bet Placed: {newBet.Type}, Amount: {newBet.Amount}");
                 return true;
             }
             else
             {
-                Debug.LogWarning("Insufficient Balance!");
+                Debug.LogWarning("[BetManager] Insufficient Balance!");
                 return false;
             }
         }
 
-        // Clear Table
         public void ClearAllBets()
         {
             if (GameManager.Instance.CurrentState != GameState.Betting) return;
@@ -93,40 +98,26 @@ namespace Core
             _activeBets.Clear();
             _totalBetOnTable = 0;
             UpdateUI();
+            Debug.Log("[BetManager] All bets on the table cleared.");
         }
 
         // --- Internal Logic ---
 
-        // When ball choose a number
+        // Triggered when the wheel stops, saves the result
         private void HandleSpinResult(int winningNumber)
         {
-
-        }
-
-        private void HandleStateChange(GameState newState)
-        {
-            if (newState == GameState.Payout)
-            {
-                CalculateWinnings(GameManager.Instance.GetRouletteData());
-            }
-        }
-
-        private void CalculateWinnings(RouletteDataSO data)
-        {
-            int winningNumber = -1;
-        
-        }
-
-        private int _lastWinningNumber = -1;
-
-        private void HandleSpinResult_Revised(int winningNumber)
-        {
             _lastWinningNumber = winningNumber;
+            Debug.Log($"[BetManager] Winning Number Recorded: {_lastWinningNumber}");
         }
 
+        // Called by GameManager during Payout State
         public void ResolvePayouts()
         {
-            if (_lastWinningNumber == -1) return;
+            if (_lastWinningNumber == -1)
+            {
+                Debug.LogError("[BetManager] Error: Proceeded to payout without a determined winning number!");
+                return;
+            }
 
             int totalWin = 0;
             RouletteDataSO data = GameManager.Instance.GetRouletteData();
@@ -137,15 +128,17 @@ namespace Core
                 {
                     int payout = bet.CalculatePayout();
                     totalWin += payout;
-                    Debug.Log($"KAZANDIN! Bahis: {bet.Type}, Ödeme: {payout}");
+                    Debug.Log($"[BetManager] YOU WON! Bet: {bet.Type}, Payout: {payout}");
                 }
             }
 
             _currentBalance += totalWin;
             OnWinAmountCalculated?.Invoke(totalWin);
 
+            // Clear the table for the next round
             _activeBets.Clear();
             _totalBetOnTable = 0;
+            _lastWinningNumber = -1; // Reset state
 
             UpdateUI();
             SaveGame();
